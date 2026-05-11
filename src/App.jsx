@@ -1,8 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
-import Webcam from 'react-webcam';
 
 const App = () => {
-  const webcamRef = useRef(null);
+  const videoRef = useRef(null); // webcamRef er bodole videoRef
   const drawingCanvasRef = useRef(null);
   const trackingCanvasRef = useRef(null);
   const prevPos = useRef(null);
@@ -56,7 +55,7 @@ const App = () => {
       if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
         const landmarks = results.multiHandLandmarks[0];
 
-        // Drawing Skeleton with Neon Glow
+        // Drawing Skeleton
         trackCtx.lineWidth = 3;
         trackCtx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
         trackCtx.shadowBlur = 10;
@@ -114,15 +113,14 @@ const App = () => {
       }
     });
 
-    if (typeof webcamRef.current !== "undefined" && webcamRef.current !== null) {
-      const camera = new Camera(webcamRef.current.video, {
+    if (typeof videoRef.current !== "undefined" && videoRef.current !== null) {
+      const camera = new Camera(videoRef.current, {
         onFrame: async () => {
-          if (webcamRef.current && webcamRef.current.video) {
-            await hands.send({ image: webcamRef.current.video });
+          if (videoRef.current) {
+            await hands.send({ image: videoRef.current });
           }
         },
-        width: 1280,
-        height: 720,
+        facingMode: "user", // Mobile e force front camera
       });
       camera.start();
     }
@@ -163,11 +161,14 @@ const App = () => {
 
   return (
     <div className="relative w-screen h-screen bg-[#0f172a] overflow-hidden font-sans">
-      {/* Live Camera */}
-      <Webcam 
-        ref={webcamRef} 
+      {/* Mobile er jonno perfect HTML5 Video tag */}
+      <video 
+        ref={videoRef} 
         className="absolute inset-0 w-full h-full object-cover z-10 opacity-70 grayscale-[0.1]" 
-        mirrored={true} 
+        style={{ transform: "scaleX(-1)" }} 
+        autoPlay 
+        playsInline 
+        muted 
       />
       
       {/* Drawing Canvas */}
@@ -176,12 +177,11 @@ const App = () => {
       {/* Tracking Canvas (Skeleton) */}
       <canvas ref={trackingCanvasRef} className="absolute inset-0 w-full h-full z-30 pointer-events-none" />
 
-      {/* Professional Minimalist Panel (Size choto kora hoyeche ebong fade animation add kora hoyeche) */}
+      {/* Control Panel */}
       <div className={`absolute top-6 left-6 z-40 pro-glass-panel p-5 w-[280px] transition-opacity duration-1000 ease-out ${showPanel ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-        
         <div className="mb-4 border-b border-white/20 pb-3">
           <h2 className="text-lg font-bold tracking-wide text-white-forced uppercase">
-            Air Drawing By SZS
+            System Controls
           </h2>
         </div>
         
